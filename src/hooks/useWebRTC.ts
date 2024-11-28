@@ -12,7 +12,7 @@ const useWebRTC = () => {
 
     peerConnection.current.onicecandidate = (event) => {
       if (event.candidate) {
-        console.log('ICE Candidate:', event.candidate);
+        console.log('ICE Candidate:', JSON.stringify(event.candidate));
       }
     };
 
@@ -42,11 +42,42 @@ const useWebRTC = () => {
     return stream;
   };
 
+  const createOffer = async () => {
+    const offer = await peerConnection.current?.createOffer();
+    if (offer) {
+      await peerConnection.current?.setLocalDescription(offer);
+      console.log('Offer SDP:', JSON.stringify(offer));
+    }
+  };
+
+  const createAnswer = async () => {
+    const answer = await peerConnection.current?.createAnswer();
+    if (answer) {
+      await peerConnection.current?.setLocalDescription(answer);
+      console.log('Answer SDP:', JSON.stringify(answer));
+    }
+  };
+
+  const setRemoteDescription = async (sdp: RTCSessionDescriptionInit) => {
+    await peerConnection.current?.setRemoteDescription(
+      new RTCSessionDescription(sdp)
+    );
+  };
+
+  const addIceCandidate = async (candidate: RTCIceCandidateInit) => {
+    await peerConnection.current?.addIceCandidate(
+      new RTCIceCandidate(candidate)
+    );
+  };
+
   return {
     localStream,
     remoteStream,
-    peerConnection,
     getLocalStream,
+    createOffer,
+    createAnswer,
+    setRemoteDescription,
+    addIceCandidate,
   };
 };
 
